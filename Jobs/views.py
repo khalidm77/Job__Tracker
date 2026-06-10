@@ -25,7 +25,7 @@ def generate_interview_questions(request):
     try:
         # configure gemini
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-pro')
 
         prompt = f"""
 You are an expert technical interviewer.
