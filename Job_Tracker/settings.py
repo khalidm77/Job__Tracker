@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from dotenv import load_dotenv
+load_dotenv()
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -138,3 +140,6 @@ CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+

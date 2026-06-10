@@ -305,6 +305,21 @@
             .stats { grid-template-columns: repeat(2,1fr); }
             th:nth-child(4), td:nth-child(4) { display: none; }
         }
+
+        .btn-ai {
+            padding: 5px 12px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-right: 6px;
+        }
+        .btn-ai:hover { opacity: 0.85; }
+        .btn-ai:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -378,7 +393,28 @@
     </div>
 
 </div>
+<!-- AI Questions Modal -->
+<div class="overlay" id="ai-overlay">
+    <div class="modal" style="max-width:560px">
+        <h3 id="ai-modal-title">Interview Questions</h3>
+        <p id="ai-subtitle" style="font-size:13px;color:var(--muted);margin-bottom:20px;"></p>
 
+        <div id="ai-loading" style="text-align:center;padding:30px;display:none;">
+            <div style="font-size:13px;color:var(--muted);">✨ Generating questions...</div>
+        </div>
+
+        <ol id="ai-questions-list" style="
+            padding-left: 20px;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+        "></ol>
+
+        <div class="modal-actions" style="margin-top:20px;">
+            <button class="btn-cancel" onclick="closeAiModal()">Close</button>
+        </div>
+    </div>
+</div>
 <!-- Add/Edit Modal -->
 <div class="overlay" id="overlay">
     <div class="modal">
@@ -421,7 +457,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    const API = 'http://127.0.0.1:8000/api';
+    const API = 'https://job-tracker-jzeg.onrender.com/api';
     let editingId  = null;
     let allJobs    = [];
     let activeFilter = 'all';
@@ -493,7 +529,9 @@
                 <td>${j.date_applied.split('T')[0]}</td>
                 <td>
                     <button class="btn-edit" onclick="openEdit(${j.id})">Edit</button>
+                    <button class="btn-ai"   onclick="generateQuestions('${j.company}', '${j.role}')">AI Questions</button>
                     <button class="btn-del"  onclick="deleteJob(${j.id})">Delete</button>
+                
                 </td>
             </tr>
         `).join('');
@@ -618,6 +656,57 @@
     // ── Init ──────────────────────────────────────────────
     requireAuth();
     loadJobs();
+
+    // ── AI Interview Questions ────────────────────────────
+async function generateQuestions(company, role) {
+    document.getElementById('ai-modal-title').textContent = 'Interview Questions';
+    document.getElementById('ai-subtitle').textContent    = `${role} at ${company}`;
+    document.getElementById('ai-loading').style.display   = 'block';
+    document.getElementById('ai-questions-list').style.display = 'none';
+    document.getElementById('ai-overlay').classList.add('open');
+
+    try {
+        const res  = await fetch(`${API}/generate-questions/`, {
+            method:  'POST',
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({ company, role })
+        });
+
+        const data = await res.json();
+
+        document.getElementById('ai-loading').style.display = 'none';
+
+        if (res.ok && data.questions) {
+            const list = document.getElementById('ai-questions-list');
+            list.innerHTML = data.questions
+                .map(q => {
+                    // remove leading number like "1. " from question
+                    const clean = q.replace(/^\d+\.\s*/, '');
+                    return `<li style="margin-bottom:14px;font-size:14px;line-height:1.6;">${clean}</li>`;
+                })
+                .join('');
+            list.style.display = 'block';
+        } else {
+            showToast(data.error || 'Failed to generate questions', 'error');
+            closeAiModal();
+        }
+    } catch {
+        showToast('Server error generating questions', 'error');
+        closeAiModal();
+    }
+}
+
+function closeAiModal() {
+    document.getElementById('ai-overlay').classList.remove('open');
+}
+
+// close AI modal on overlay click
+document.getElementById('ai-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeAiModal();
+});
 </script>
 
 </body>
