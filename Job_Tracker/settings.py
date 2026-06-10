@@ -134,3 +134,7 @@ STATICFILES_DIRS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
