@@ -23,9 +23,8 @@ def generate_interview_questions(request):
         )
 
     try:
-        # configure gemini
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
         prompt = f"""
 You are an expert technical interviewer.
@@ -46,7 +45,6 @@ Keep questions concise and realistic.
         response = model.generate_content(prompt)
         questions_text = response.text
 
-        # split into list
         lines = questions_text.strip().split('\n')
         questions = [
             line.strip() for line in lines
