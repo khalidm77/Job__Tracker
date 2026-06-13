@@ -281,11 +281,13 @@ def generate_pdf(request, pk):
                 for line in exp.ai_bullets.split('\n'):
                     line = line.strip()
                     if line.startswith('-') or line.startswith('•'):
-                        # normalize to bullet character
                         clean = line.lstrip('-•').strip()
                         story.append(Paragraph(f"• {clean}", bullet_style))
             elif exp.description:
-                story.append(Paragraph(exp.description, body_style))
+                # split description by comma and render as bullets
+                    points = [p.strip() for p in exp.description.split(',') if p.strip()]
+                    for point in points:
+                        story.append(Paragraph(f"• {point}", bullet_style))
 
             story.append(Spacer(1, 4))
 
