@@ -189,7 +189,7 @@ def generate_pdf(request, pk):
         fontSize=20,
         fontName='Helvetica-Bold',
         alignment=TA_CENTER,
-        spaceAfter=4,
+        spaceAfter=10,
         textColor=colors.HexColor('#1a1a2e')
     )
     contact_style = ParagraphStyle(
@@ -197,7 +197,7 @@ def generate_pdf(request, pk):
         fontSize=9,
         fontName='Helvetica',
         alignment=TA_CENTER,
-        spaceAfter=4,
+        spaceAfter=6,
         textColor=colors.HexColor('#555555')
     )
     section_style = ParagraphStyle(
