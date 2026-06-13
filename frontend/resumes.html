@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Resumes | Job Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:       #0f172a;
+            --surface:  #1e293b;
+            --border:   #334155;
+            --accent:   #3b82f6;
+            --accent2:  #6366f1;
+            --success:  #10b981;
+            --danger:   #ef4444;
+            --warning:  #f59e0b;
+            --text:     #f1f5f9;
+            --muted:    #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .nav-brand span {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-btn {
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s;
+        }
+        .nav-btn:hover { opacity: 0.85; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+        }
+        .btn-danger-sm {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .btn-danger-sm:hover { background: var(--danger); color: white; }
+
+        /* ── Page ── */
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .page-title { font-size: 24px; font-weight: 700; }
+        .page-subtitle { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+        /* ── Empty State ── */
+        .empty-state {
+            text-align: center;
+            padding: 80px 24px;
+            color: var(--muted);
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+        .empty-state p { font-size: 14px; margin-bottom: 24px; }
+
+        /* ── Resume Cards ── */
+        .resume-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .resume-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: border-color 0.2s;
+        }
+        .resume-card:hover { border-color: var(--accent); }
+
+        .card-left { flex: 1; min-width: 0; }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ats-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .ats-high   { background: rgba(16,185,129,0.15); color: #10b981; }
+        .ats-mid    { background: rgba(245,158,11,0.15);  color: #f59e0b; }
+        .ats-low    { background: rgba(239,68,68,0.15);   color: #ef4444; }
+        .ats-none   { background: rgba(148,163,184,0.1);  color: var(--muted); }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .action-btn:hover { opacity: 0.85; }
+        .btn-view     { background: rgba(59,130,246,0.15); color: var(--accent); }
+        .btn-download { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+        .btn-del      { background: rgba(239,68,68,0.1);   color: var(--danger); }
+
+        /* ── Modal (Resume Preview) ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .overlay.open { display: flex; }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .modal-title { font-size: 20px; font-weight: 700; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+        }
+        .modal-close:hover { color: var(--text); }
+
+        /* Preview sections */
+        .preview-section { margin-bottom: 24px; }
+        .preview-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .preview-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .preview-contact {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+        .preview-summary {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+        .exp-item { margin-bottom: 14px; }
+        .exp-role { font-size: 14px; font-weight: 600; }
+        .exp-company { font-size: 13px; color: var(--muted); }
+        .exp-bullets {
+            margin-top: 6px;
+            padding-left: 16px;
+        }
+        .exp-bullets li {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 3px;
+        }
+        .skill-row { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+        .skill-row strong { color: var(--text); }
+        .edu-item { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+        .edu-item strong { color: var(--text); font-size: 14px; }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            z-index: 999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); }
+        .toast.error   { background: var(--danger); }
+
+        /* ── Loading ── */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/dashboard.html" class="nav-brand">
+        <span>📋</span> Job Tracker
+    </a>
+    <div class="nav-right">
+        <a href="/resume.html" class="nav-btn btn-primary">+ New Resume</a>
+        <a href="/dashboard.html" class="nav-btn btn-outline">← Dashboard</a>
+        <button class="nav-btn btn-outline" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<!-- Page -->
+<div class="page">
+    <div class="page-header">
+        <div>
+            <div class="page-title">My Resumes</div>
+            <div class="page-subtitle">All your saved resumes in one place</div>
+        </div>
+    </div>
+
+    <div id="resume-list">
+        <div class="loading">Loading your resumes...</div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="overlay" id="preview-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="preview-title">Resume Preview</div>
+            <button class="modal-close" onclick="closePreview()">✕</button>
+        </div>
+
+        <div id="preview-content"></div>
+
+        <div class="modal-footer">
+            <button class="nav-btn btn-outline" onclick="closePreview()">Close</button>
+            <button class="nav-btn btn-primary" id="preview-download-btn" onclick="downloadFromPreview()">⬇ Download PDF</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://job-tracker-jzeg.onrender.com/api';
+let currentPreviewId = null;
+
+function getToken() {
+    return localStorage.getItem('access_token');
+}
+
+function logout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    window.location.href = '/login.html';
+}
+
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Load all resumes ──────────────────────────────────
+async function loadResumes() {
+    const token = getToken();
+    if (!token) { window.location.href = '/login.html'; return; }
+
+    try {
+        const res = await fetch(`${API}/resumes/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.status === 401) { window.location.href = '/login.html'; return; }
+
+        const data = await res.json();
+        const resumes = data.results || data;
+
+        renderResumes(resumes);
+    } catch {
+        document.getElementById('resume-list').innerHTML =
+            '<div class="loading">Failed to load resumes. Is the server running?</div>';
+    }
+}
+
+function renderResumes(resumes) {
+    const container = document.getElementById('resume-list');
+
+    if (!resumes || resumes.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📄</div>
+                <h3>No resumes yet</h3>
+                <p>Build your first AI-powered resume and download it as a PDF.</p>
+                <a href="/resume.html" class="nav-btn btn-primary">+ Create Resume</a>
+            </div>`;
+        return;
+    }
+
+    const html = resumes.map(r => {
+        const date = new Date(r.created_at).toLocaleDateString('en-IN', {
+            day: 'numeric', month: 'short', year: 'numeric'
+        });
+
+        let atsBadge = '';
+        if (!r.ats_score) {
+            atsBadge = `<span class="ats-badge ats-none">ATS: Not generated</span>`;
+        } else if (r.ats_score >= 75) {
+            atsBadge = `<span class="ats-badge ats-high">✓ ATS ${r.ats_score}%</span>`;
+        } else if (r.ats_score >= 50) {
+            atsBadge = `<span class="ats-badge ats-mid">~ ATS ${r.ats_score}%</span>`;
+        } else {
+            atsBadge = `<span class="ats-badge ats-low">✗ ATS ${r.ats_score}%</span>`;
+        }
+
+        return `
+        <div class="resume-card" id="card-${r.id}">
+            <div class="card-left">
+                <div class="card-title">${r.title}</div>
+                <div class="card-meta">
+                    <span class="meta-item">👤 ${r.full_name}</span>
+                    <span class="meta-item">📅 ${date}</span>
+                    ${atsBadge}
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="action-btn btn-view"     onclick="previewResume(${r.id})">👁 View</button>
+                <button class="action-btn btn-download" onclick="downloadPDF(${r.id}, '${r.full_name}')">⬇ PDF</button>
+                <button class="action-btn btn-del"      onclick="deleteResume(${r.id})">🗑</button>
+            </div>
+        </div>`;
+    }).join('');
+
+    container.innerHTML = `<div class="resume-grid">${html}</div>`;
+}
+
+// ── Preview resume ────────────────────────────────────
+async function previewResume(id) {
+    currentPreviewId = id;
+    const token = getToken();
+
+    document.getElementById('preview-content').innerHTML =
+        '<div class="loading">Loading...</div>';
+    document.getElementById('preview-overlay').classList.add('open');
+
+    try {
+        const res = await fetch(`${API}/resumes/${id}/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const r = await res.json();
+
+        document.getElementById('preview-title').textContent = r.title;
+
+        let html = '';
+
+        // Personal info
+        html += `<div class="preview-section">
+            <div class="preview-name">${r.full_name}</div>
+            <div class="preview-contact">${r.email}${r.phone ? ' | ' + r.phone : ''}${r.location ? ' | ' + r.location : ''}</div>
+            ${r.linkedin || r.github ? `<div class="preview-contact">${[r.linkedin, r.github].filter(Boolean).join(' | ')}</div>` : ''}
+        </div>`;
+
+        // Summary
+        if (r.summary) {
+            html += `<div class="preview-section">
+                <div class="preview-label">Professional Summary</div>
+                <div class="preview-summary">${r.summary}</div>
+            </div>`;
+        }
+
+        // Experience
+        if (r.experience && r.experience.length > 0) {
+            html += `<div class="preview-section"><div class="preview-label">Work Experience</div>`;
+            r.experience.forEach(exp => {
+                html += `<div class="exp-item">
+                    <div class="exp-role">${exp.role}</div>
+                    <div class="exp-company">${exp.company} | ${exp.start_date} – ${exp.end_date || 'Present'}</div>`;
+
+                if (exp.ai_bullets) {
+                    const bullets = exp.ai_bullets.split('\n')
+                        .map(l => l.trim())
+                        .filter(l => l.startsWith('-') || l.startsWith('•'));
+                    if (bullets.length > 0) {
+                        html += `<ul class="exp-bullets">${bullets.map(b =>
+                            `<li>${b.replace(/^[-•]\s*/, '')}</li>`
+                        ).join('')}</ul>`;
+                    }
+                } else if (exp.description) {
+                    html += `<div class="exp-company" style="margin-top:4px">${exp.description}</div>`;
+                }
+
+                html += `</div>`;
+            });
+            html += `</div>`;
+        }
+
+        // Skills
+        if (r.skills && r.skills.length > 0) {
+            html += `<div class="preview-section"><div class="preview-label">Skills</div>`;
+            r.skills.forEach(s => {
+                html += `<div class="skill-row"><strong>${s.category}:</strong> ${s.items}</div>`;
+            });
+            html += `</div>`;
+        }
+
+        // Education
+        if (r.education && r.education.length > 0) {
+            html += `<div class="preview-section"><div class="preview-label">Education</div>`;
+            r.education.forEach(e => {
+                html += `<div class="edu-item">
+                    <strong>${e.degree} — ${e.institution}</strong><br>
+                    ${e.year}${e.grade ? ' | ' + e.grade : ''}
+                </div>`;
+            });
+            html += `</div>`;
+        }
+
+        // ATS score
+        if (r.ats_score) {
+            const cls = r.ats_score >= 75 ? 'ats-high' : r.ats_score >= 50 ? 'ats-mid' : 'ats-low';
+            html += `<div style="text-align:center;margin-top:8px">
+                <span class="ats-badge ${cls}" style="font-size:14px;padding:6px 16px">
+                    ATS Match Score: ${r.ats_score}%
+                </span>
+            </div>`;
+        }
+
+        document.getElementById('preview-content').innerHTML = html;
+
+    } catch {
+        document.getElementById('preview-content').innerHTML =
+            '<div class="loading">Failed to load resume details.</div>';
+    }
+}
+
+function closePreview() {
+    document.getElementById('preview-overlay').classList.remove('open');
+    currentPreviewId = null;
+}
+
+function downloadFromPreview() {
+    if (currentPreviewId) downloadPDF(currentPreviewId);
+}
+
+// ── Download PDF ──────────────────────────────────────
+function downloadPDF(id, name) {
+    const token = getToken();
+    window.open(`${API}/resumes/${id}/pdf/?token=${token}`, '_blank');
+}
+
+// ── Delete resume ─────────────────────────────────────
+async function deleteResume(id) {
+    if (!confirm('Delete this resume? This cannot be undone.')) return;
+
+    const token = getToken();
+    try {
+        const res = await fetch(`${API}/resumes/${id}/`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.status === 204) {
+            document.getElementById(`card-${id}`)?.remove();
+            showToast('Resume deleted');
+
+            // if no cards left, reload to show empty state
+            if (!document.querySelector('.resume-card')) loadResumes();
+        } else {
+            showToast('Failed to delete', 'error');
+        }
+    } catch {
+        showToast('Server error', 'error');
+    }
+}
+
+// close preview on overlay click
+document.getElementById('preview-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePreview();
+});
+
+// init
+loadResumes();
+</script>
+</body>
+</html>
