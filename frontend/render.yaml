@@ -3,4 +3,4 @@ services:
     name: job-tracker
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn Job_Tracker.wsgi:application
+    startCommand: python manage.py migrate && gunicorn Job_Tracker.wsgi:application
