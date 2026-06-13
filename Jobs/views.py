@@ -44,7 +44,7 @@ Format each question on a new line starting with a number like:
 Keep questions concise and realistic.
 """
         response = client.chat.completions.create(
-            model='llama3-8b-8192',
+            model='llama-3.3-70b-versatile',
             messages=[{'role': 'user', 'content': prompt}]
         )
 
