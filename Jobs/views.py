@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
+from groq import Groq
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def generate_interview_questions(request):
@@ -23,8 +25,7 @@ def generate_interview_questions(request):
         )
 
     try:
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        client = Groq(api_key=settings.GROQ_API_KEY)
 
         prompt = f"""
 You are an expert technical interviewer.
@@ -42,8 +43,12 @@ Format each question on a new line starting with a number like:
 
 Keep questions concise and realistic.
 """
-        response = model.generate_content(prompt)
-        questions_text = response.text
+        response = client.chat.completions.create(
+            model='llama3-8b-8192',
+            messages=[{'role': 'user', 'content': prompt}]
+        )
+
+        questions_text = response.choices[0].message.content
 
         lines = questions_text.strip().split('\n')
         questions = [

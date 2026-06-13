@@ -141,5 +141,4 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
